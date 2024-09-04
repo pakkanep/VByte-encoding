@@ -2,6 +2,10 @@
 
 This program implements a generalized version of Variable Byte (VByte) encoding and decoding. It allows setting the size of the payload per block at runtime and supports encoding of sorted input by storing differences between consecutive numbers.
 
+The project is still in progress and my intention is to optimize the code and add more features like:
+  - The executable should read from the standard input, if no file is given.
+  - Location-based random access for VByte encoded data.
+
 ## Features
 
 - **Payload Size Control:** Supports the `-k <k>` command-line argument to set the block payload size to `k`. For example, `-k 7` would set the block size to 7 bits for the payload and 1 stop bit.
