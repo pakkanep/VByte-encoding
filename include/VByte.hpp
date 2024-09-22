@@ -1,51 +1,80 @@
-#include <vector>
-#pragma once
+#include <iostream>
+#include <deque>
 
+#pragma once
 namespace pfp {
 
-template <class dtype>
-
+template<class dtype, class dtype2>
 class VByte {
     public:
-        std::vector<dtype> bytestream;
-        dtype blocksize;
+        std::deque<dtype2> bytestream;
+        dtype chunk, blocksize;
 
         VByte(dtype block) {
+            chunk = block;
             blocksize = (2 << (block-1));
         }
 
-    void VBEncodeNumber(dtype n) {
-        std::vector<dtype> temporary;
-        while (true) {
-            temporary.insert(temporary.begin(), n%blocksize);
-            if (n < blocksize) {
-                break;
+        void VBencode(dtype val) {
+            dtype vbyte = (val & (blocksize - 1)) | blocksize;
+            val = (val >> chunk);
+            int vbyte_len = 1;
+            while (val > 0) {
+                vbyte = (vbyte << (chunk + 1)) | (val & (blocksize-1));
+                val = (val >> chunk);
+                vbyte_len = vbyte_len + 1;
             }
-            n = n / blocksize;
+
+            while (vbyte_len > 0) {
+                bytestream.push_back(vbyte & ((2 << chunk)-1));
+                vbyte = (vbyte >> (chunk+1));
+                vbyte_len = vbyte_len - 1;
+            }
+
         }
-        temporary[temporary.size()-1] += blocksize;
 
-        bytestream.insert(bytestream.end(), temporary.begin(), temporary.end());
-    }
-
-
-
-
-    std::vector<dtype> VBDecode() {
-        std::vector<dtype> result;
+    void VBDecode_sum() {
+        std::ios_base::sync_with_stdio(0);
+        std::cin.tie(0);
+        uint64_t summa = 0;
         uint64_t n = 0;
         uint64_t b = 0;
-        for (uint64_t i = 0; i < bytestream.size(); i++) {
-            b = bytestream[i];
+        int size = bytestream.size();
+        for (int i = 0; i < size; i++) {
+            b = *bytestream.begin(); 
+            
+            bytestream.pop_front();
             if (b < blocksize) {
-                n = blocksize * n + b;
+                n = (n << chunk) + b;
             } else {
-                n = blocksize * n + b - blocksize;
-                result.push_back(n);
+                n = (n << chunk) + b - blocksize;
+                summa += n;
+                std::cout << (summa) << "\n";
                 n = 0;
             }
         }
-        return result;
+    
+    }
+
+
+    void VBDecode() {
+        std::ios_base::sync_with_stdio(0);
+        std::cin.tie(0);
+        uint64_t n = 0;
+        uint64_t b = 0;
+        int size = bytestream.size();
+        for (int i = 0; i < size; i++) {
+            b = *bytestream.begin(); 
+            bytestream.pop_front();
+            if (b < (blocksize)) {
+                n = (n << chunk) + b;
+            } else {
+                n = (n << chunk) + b - (blocksize);
+                std::cout << (n) << "\n";
+                n = 0;
+            }
+        }
+    
     }
 };
-} // namespace pfp
+}
