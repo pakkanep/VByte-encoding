@@ -44,6 +44,11 @@ The input is a binary stream consisting of 64-bit unsigned integers.
 
 Compile the program and run it with the desired flags:
 
+
+```bash
+make main
+```
+
 ```bash
 ./vbyte_encoder -s -k 4 < input_file
 
